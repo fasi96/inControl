@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			body {
+				width: 300px;
+				padding: 10px;
+			}
+			input {
+				width: 200px;
+				margin-right: 5px;
+			}
+			#urlList {
+				margin-top: 10px;
+			}
+			.urlItem {
+				margin: 5px 0;
+			}
+			.deleteBtn {
+				margin-left: 5px;
+				color: red;
+				cursor: pointer;
+			}
+			#tempAccessBtn {
+				margin-top: 10px;
+				width: 100%;
+				padding: 8px;
+				background-color: #4caf50;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+			}
+			#tempAccessBtn:disabled {
+				background-color: #cccccc;
+				cursor: not-allowed;
+			}
+		</style>
+	</head>
+	<body>
+		<input
+			type="text"
+			id="urlInput"
+			placeholder="Enter URL (e.g., youtube.com/shorts)"
+		/>
+		<button id="addBtn">Add</button>
+		<div id="urlList"></div>
+		<button id="tempAccessBtn">Allow Access for 30 Seconds</button>
+		<script src="popup.js"></script>
+	</body>
+</html>
