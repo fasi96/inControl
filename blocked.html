@@ -8,28 +8,53 @@
 				align-items: center;
 				height: 100vh;
 				margin: 0;
-				font-family: Arial, sans-serif;
-				background-color: #f0f0f0;
+				font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+				background-color: #f5f7fa;
+				color: #2d3748;
 			}
 			.message {
 				text-align: center;
-				padding: 20px;
+				padding: 2.5rem;
 				background: white;
-				border-radius: 8px;
-				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+				border-radius: 16px;
+				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+					0 2px 4px -1px rgba(0, 0, 0, 0.06);
+				max-width: 90%;
+				width: 500px;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
 			}
 			.icon {
-				width: 1024px;
-				height: 1024px;
-				margin-bottom: 20px;
+				width: 80vw;
+				height: 80vh;
+				object-fit: contain;
+				margin-bottom: 2rem;
+			}
+			h2 {
+				margin: 0 0 1rem;
+				font-size: 1.75rem;
+				font-weight: 600;
+			}
+			p {
+				margin: 0;
+				color: #4a5568;
+				line-height: 1.5;
 			}
 		</style>
 	</head>
 	<body>
 		<div class="message">
-			<img src="icon.png" alt="URL Blocker Icon" class="icon" />
+			<img
+				id="randomIcon"
+				class="icon"
+				alt="URL Blocker Icon"
+				onerror="handleImageError(this)"
+			/>
 			<h2>This URL has been blocked</h2>
 			<p>This page has been blocked by the URL Blocker extension.</p>
+			<p id="debug" style="color: #666; font-size: 12px; margin-top: 10px"></p>
 		</div>
+		<script src="blocked.js"></script>
 	</body>
 </html>

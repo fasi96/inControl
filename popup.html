@@ -3,49 +3,385 @@
 	<head>
 		<style>
 			body {
-				width: 300px;
-				padding: 10px;
+				width: 320px;
+				padding: 16px;
+				margin: 0;
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+					sans-serif;
 			}
-			input {
-				width: 200px;
-				margin-right: 5px;
+
+			/* Input Section */
+			.inputSection {
+				margin-bottom: 16px;
+				display: flex;
+				gap: 8px;
 			}
-			#urlList {
-				margin-top: 10px;
+
+			#urlInput {
+				flex-grow: 1;
+				padding: 8px 12px;
+				border: 1px solid #e0e0e0;
+				border-radius: 6px;
+				font-size: 13px;
+				transition: border-color 0.2s;
 			}
-			.urlItem {
-				margin: 5px 0;
+
+			#urlInput:focus {
+				outline: none;
+				border-color: #2196f3;
 			}
-			.deleteBtn {
-				margin-left: 5px;
-				color: red;
+
+			#addBtn {
+				padding: 8px 16px;
+				background: #2196f3;
+				color: white;
+				border: none;
+				border-radius: 6px;
 				cursor: pointer;
+				font-size: 13px;
+				transition: background 0.2s;
 			}
-			#tempAccessBtn {
-				margin-top: 10px;
-				width: 100%;
-				padding: 8px;
-				background-color: #4caf50;
+
+			#addBtn:hover {
+				background: #1976d2;
+			}
+
+			/* URL List */
+			#urlList {
+				margin-bottom: 16px;
+				max-height: 300px;
+				overflow-y: auto;
+			}
+
+			.urlItem {
+				display: flex;
+				align-items: center;
+				padding: 10px;
+				background: #f8f9fa;
+				border-radius: 6px;
+				margin-bottom: 8px;
+				transition: background 0.2s;
+			}
+
+			.urlItem:hover {
+				background: #f1f3f4;
+			}
+
+			.urlText {
+				flex-grow: 1;
+				font-size: 13px;
+				color: #202124;
+				margin-right: 12px;
+			}
+
+			.urlControls {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.unblockBtn {
+				position: relative;
+				overflow: hidden;
+				padding: 6px 12px;
+				background: #4caf50;
 				color: white;
 				border: none;
 				border-radius: 4px;
 				cursor: pointer;
+				font-size: 12px;
+				transition: all 0.2s;
+				min-width: 70px;
 			}
-			#tempAccessBtn:disabled {
-				background-color: #cccccc;
+
+			.progress-bar {
+				position: absolute;
+				bottom: 0;
+				left: 0;
+				height: 100%;
+				width: 0%;
+				background: rgba(244, 67, 54, 0.8);
+				transition: width 1s linear;
+				z-index: 1;
+			}
+
+			.button-text {
+				position: relative;
+				z-index: 2;
+			}
+
+			.unblockBtn.in-progress {
 				cursor: not-allowed;
+				background: #757575;
+			}
+
+			.unblockBtn:hover {
+				background: #43a047;
+			}
+
+			.unblockBtn:disabled {
+				background: #e0e0e0;
+				cursor: not-allowed;
+			}
+
+			.deleteBtn {
+				color: #757575;
+				cursor: pointer;
+				font-size: 18px;
+				width: 24px;
+				height: 24px;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 50%;
+				transition: all 0.2s;
+			}
+
+			.deleteBtn:hover {
+				background: #ffebee;
+				color: #f44336;
+			}
+
+			/* Unblock Section */
+			.unblockSection {
+				display: none;
+				padding: 16px;
+				background: #f8f9fa;
+				border-radius: 8px;
+				border: 1px solid #e0e0e0;
+			}
+
+			.unblockSection.active {
+				display: block;
+			}
+
+			.unblockSection h3 {
+				margin: 0 0 12px 0;
+				font-size: 14px;
+				color: #202124;
+				font-weight: 500;
+			}
+
+			.selectedUrl {
+				font-size: 13px;
+				color: #4caf50;
+				margin-bottom: 12px;
+				padding: 8px;
+				background: #e8f5e9;
+				border-radius: 4px;
+			}
+
+			.timeSelect {
+				width: 100%;
+				padding: 8px;
+				margin-bottom: 12px;
+				border: 1px solid #e0e0e0;
+				border-radius: 4px;
+				font-size: 13px;
+				color: #202124;
+				background: white;
+			}
+
+			.noteInput {
+				width: 100%;
+				min-height: 60px;
+				padding: 8px;
+				margin-bottom: 12px;
+				border: 1px solid #e0e0e0;
+				border-radius: 4px;
+				font-size: 13px;
+				box-sizing: border-box;
+				resize: vertical;
+				font-family: inherit;
+				line-height: 1.4;
+			}
+
+			.noteInput::placeholder {
+				color: #757575;
+			}
+
+			.noteInput:focus {
+				outline: none;
+				border-color: #2196f3;
+				box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.1);
+			}
+
+			.timeSelect:focus {
+				outline: none;
+				border-color: #2196f3;
+			}
+
+			.confirmBtn {
+				width: 100%;
+				padding: 10px;
+				background: #4caf50;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 13px;
+				transition: background 0.2s;
+			}
+
+			.confirmBtn:hover:not(:disabled) {
+				background: #43a047;
+			}
+
+			.confirmBtn:disabled {
+				background: #e0e0e0;
+				cursor: not-allowed;
+			}
+
+			/* Scrollbar Styling */
+			::-webkit-scrollbar {
+				width: 8px;
+			}
+
+			::-webkit-scrollbar-track {
+				background: #f1f1f1;
+				border-radius: 4px;
+			}
+
+			::-webkit-scrollbar-thumb {
+				background: #bdbdbd;
+				border-radius: 4px;
+			}
+
+			::-webkit-scrollbar-thumb:hover {
+				background: #757575;
+			}
+
+			/* History Overview Styles */
+			.statsSection {
+				margin-bottom: 16px;
+				padding: 8px 12px;
+				background: #e8f5e9;
+				border-radius: 6px;
+				font-size: 12px;
+				color: #2e7d32;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+			}
+
+			.viewHistoryBtn {
+				padding: 4px 8px;
+				background: #4caf50;
+				color: white;
+				border: none;
+				border-radius: 4px;
+				cursor: pointer;
+				font-size: 11px;
+				transition: background 0.2s;
+			}
+
+			.viewHistoryBtn:hover {
+				background: #43a047;
+			}
+
+			/* History Modal Styles */
+			.historyModal {
+				display: none;
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(0, 0, 0, 0.5);
+				z-index: 1000;
+			}
+
+			.historyModal.active {
+				display: block;
+			}
+
+			.modalContent {
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				background: white;
+				padding: 16px;
+				border-radius: 8px;
+				width: 90%;
+				max-height: 80%;
+				overflow-y: auto;
+			}
+
+			.historyItem {
+				padding: 12px;
+				border-bottom: 1px solid #e0e0e0;
+				font-size: 13px;
+			}
+
+			.historyItem:last-child {
+				border-bottom: none;
+			}
+
+			.historyUrl {
+				color: #1976d2;
+				font-weight: 500;
+				margin-bottom: 4px;
+			}
+
+			.historyNote {
+				color: #616161;
+				margin: 4px 0;
+			}
+
+			.historyTime {
+				color: #9e9e9e;
+				font-size: 11px;
+			}
+
+			.closeModal {
+				position: absolute;
+				top: 8px;
+				right: 8px;
+				cursor: pointer;
+				padding: 4px;
+				color: #757575;
 			}
 		</style>
 	</head>
 	<body>
-		<input
-			type="text"
-			id="urlInput"
-			placeholder="Enter URL (e.g., youtube.com/shorts)"
-		/>
-		<button id="addBtn">Add</button>
+		<div class="inputSection">
+			<input
+				type="text"
+				id="urlInput"
+				placeholder="URL to block (e.g., youtube.com)"
+			/>
+			<button id="addBtn">Add</button>
+		</div>
+		<div class="statsSection">
+			<span class="recentStats">Loading stats...</span>
+			<button class="viewHistoryBtn">View History</button>
+		</div>
 		<div id="urlList"></div>
-		<button id="tempAccessBtn">Allow Access for 30 Seconds</button>
+		<div id="unblockSection" class="unblockSection">
+			<h3>Temporary Access Request</h3>
+			<div class="selectedUrl"></div>
+			<select class="timeSelect">
+				<option value="30">30 seconds</option>
+				<option value="300">5 minutes</option>
+				<option value="900">15 minutes</option>
+				<option value="1800">30 minutes</option>
+				<option value="3600">1 hour</option>
+			</select>
+			<textarea
+				class="noteInput"
+				placeholder="Why do you need access? (required)"
+				rows="3"
+			></textarea>
+			<button class="confirmBtn" disabled>Grant Temporary Access</button>
+		</div>
+		<div class="historyModal">
+			<div class="modalContent">
+				<span class="closeModal">&times;</span>
+				<h3>Unblock History</h3>
+				<div class="historyItems"></div>
+			</div>
+		</div>
 		<script src="popup.js"></script>
 	</body>
 </html>
