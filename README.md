@@ -12,11 +12,47 @@ A Chrome extension that helps you stay focused by blocking distracting websites 
 
 ## Installation
 
-1. Download or clone this repository
-2. Open Chrome and go to `chrome://extensions/`
-3. Enable "Developer mode" in the top right corner
-4. Click "Load unpacked" and select the extension directory
-5. The URL Blocker icon should appear in your Chrome toolbar
+1. Download this repository
+
+   - Go to the GitHub repository
+   - Click the green "Code" button
+   - Select "Download ZIP"
+   - Extract the ZIP file to a location on your computer
+
+2. Open Chrome and access the extensions page
+
+   - Option A: Type `chrome://extensions/` in your address bar
+   - Option B: Click the three dots menu (⋮) > More Tools > Extensions
+
+3. Enable Developer mode
+
+   - Look for the toggle switch in the top-right corner
+   - Make sure it's switched ON (you'll see it turn blue)
+
+4. Load the extension
+
+   - Click the "Load unpacked" button that appears in the top-left
+   - Navigate to the folder where you extracted the extension
+   - Select the main extension directory (the one containing manifest.json)
+   - Click "Select Folder" (Windows) or "Open" (Mac)
+
+5. Verify the installation
+
+   - The URL Blocker icon should appear in your Chrome toolbar
+   - If you don't see it, click the puzzle piece icon to find it
+   - Optional: Pin the extension by clicking the pin icon next to it
+
+6. Test the installation
+   - Click the URL Blocker icon to open the popup
+   - Try adding a test URL to ensure it's working properly
+   - Visit a blocked site to confirm the blocking page appears
+
+Note: If you encounter any issues during installation:
+
+- Make sure all files are properly extracted
+- Try refreshing the extensions page
+- Check the console for any error messages
+- Restart Chrome if necessary
 
 ## How to Use
 
