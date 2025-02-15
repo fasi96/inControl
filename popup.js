@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
 	loadBlockedUrls();
 	updateStats();
 	setupHistoryModal();
+	setupMemeManager();
 
 	document.getElementById("addBtn").addEventListener("click", addUrl);
 	document
@@ -13,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 function addUrl() {
 	const input = document.getElementById("urlInput");
-	const url = input.value.trim();
+	const url = input.value.trim().toLowerCase();
 	if (url) {
 		chrome.storage.local.get(["blockedUrls"], function (result) {
 			const blockedUrls = result.blockedUrls || [];
@@ -144,7 +145,12 @@ function removeUrl(urlToRemove) {
 	});
 }
 
-function handleUnblockRequest(url, timeSelect, noteInput, unblockSection) {
+async function handleUnblockRequest(
+	url,
+	timeSelect,
+	noteInput,
+	unblockSection
+) {
 	const duration = parseInt(timeSelect.value);
 	const expiryTime = Date.now() + duration * 1000;
 
@@ -153,7 +159,7 @@ function handleUnblockRequest(url, timeSelect, noteInput, unblockSection) {
 		duration: duration,
 		note: noteInput.value.trim(),
 		timestamp: new Date().toISOString(),
-		expiryTime: expiryTime, // Add expiry time to request
+		expiryTime: expiryTime,
 	};
 
 	chrome.runtime.sendMessage(
@@ -348,6 +354,7 @@ function setupHistoryModal() {
 	const viewHistoryBtn = document.querySelector(".viewHistoryBtn");
 	const modal = document.querySelector(".historyModal");
 	const closeModal = document.querySelector(".closeModal");
+	const historyFilter = document.getElementById("historyFilter");
 
 	viewHistoryBtn.addEventListener("click", () => {
 		showHistory();
@@ -364,6 +371,9 @@ function setupHistoryModal() {
 			modal.classList.remove("active");
 		}
 	});
+
+	// Handle filter changes
+	historyFilter.addEventListener("change", showHistory);
 }
 
 function showHistory() {
@@ -371,6 +381,50 @@ function showHistory() {
 		const history = result.unblockHistory || [];
 		const historyItems = document.querySelector(".historyItems");
 		historyItems.innerHTML = "";
+
+		// Calculate today's date (midnight)
+		const today = new Date();
+		today.setHours(0, 0, 0, 0);
+
+		// Calculate start of this week
+		const startOfWeek = new Date(today);
+		startOfWeek.setDate(today.getDate() - today.getDay());
+
+		// Calculate statistics
+		const stats = history.reduce(
+			(acc, item) => {
+				const itemDate = new Date(item.timestamp);
+
+				// Today's count
+				if (itemDate >= today) {
+					acc.todayCount++;
+				}
+
+				// This week's count
+				if (itemDate >= startOfWeek) {
+					acc.weekCount++;
+				}
+
+				// Add to total duration for average calculation
+				acc.totalDuration += item.duration;
+
+				return acc;
+			},
+			{ todayCount: 0, weekCount: 0, totalDuration: 0 }
+		);
+
+		// Update statistics in the UI
+		document.getElementById("todayCount").textContent = stats.todayCount;
+		document.getElementById("weekCount").textContent = stats.weekCount;
+
+		// Calculate average duration in minutes
+		const avgDurationMinutes =
+			history.length > 0
+				? Math.round(stats.totalDuration / history.length / 60)
+				: 0;
+		document.getElementById(
+			"avgDuration"
+		).textContent = `${avgDurationMinutes}m`;
 
 		// Sort history by timestamp, most recent first
 		history
@@ -382,29 +436,42 @@ function showHistory() {
 				// Format the duration in a readable way
 				const duration =
 					item.duration >= 3600
-						? `${item.duration / 3600} hour(s)`
+						? `${Math.round((item.duration / 3600) * 10) / 10}h`
 						: item.duration >= 60
-						? `${item.duration / 60} minute(s)`
-						: `${item.duration} seconds`;
+						? `${Math.round(item.duration / 60)}m`
+						: `${item.duration}s`;
 
-				// Format the date in a cleaner way
+				// Format the date
 				const date = new Date(item.timestamp);
-				const formattedDate = date.toLocaleDateString("en-US", {
-					year: "numeric",
-					month: "short",
-					day: "numeric",
-					hour: "2-digit",
-					minute: "2-digit",
-					hour12: true,
-				});
+				const now = new Date();
+				let formattedDate;
+
+				if (date.toDateString() === now.toDateString()) {
+					formattedDate = `Today at ${date.toLocaleTimeString([], {
+						hour: "2-digit",
+						minute: "2-digit",
+					})}`;
+				} else if (
+					date.toDateString() === new Date(now - 86400000).toDateString()
+				) {
+					formattedDate = `Yesterday at ${date.toLocaleTimeString([], {
+						hour: "2-digit",
+						minute: "2-digit",
+					})}`;
+				} else {
+					formattedDate = date.toLocaleDateString([], {
+						month: "short",
+						day: "numeric",
+						hour: "2-digit",
+						minute: "2-digit",
+					});
+				}
 
 				historyItem.innerHTML = `
-				<div class="historyUrl">${item.url}</div>
-				<div class="historyNote">${item.note}</div>
-				<div class="historyTime">
-					${formattedDate} | ${duration}
-				</div>
-			`;
+					<div class="historyUrl">${item.url}</div>
+					<div class="historyNote">${item.note}</div>
+					<div class="historyTime">${formattedDate} • ${duration}</div>
+				`;
 
 				historyItems.appendChild(historyItem);
 			});
@@ -417,4 +484,13 @@ function showHistory() {
 			`;
 		}
 	});
+}
+
+function setupMemeManager() {
+	const manageMemeBtn = document.querySelector(".manageMemeBtn");
+	if (manageMemeBtn) {
+		manageMemeBtn.addEventListener("click", () => {
+			window.open(chrome.runtime.getURL("blocked.html"));
+		});
+	}
 }

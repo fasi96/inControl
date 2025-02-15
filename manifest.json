@@ -1,8 +1,9 @@
 {
 	"name": "URL Blocker",
-	"version": "1.0",
+	"version": "1.0.0",
+	"description": "Stay focused by blocking distracting websites with flexible temporary access when needed",
 	"manifest_version": 3,
-	"permissions": ["declarativeNetRequest", "storage", "webNavigation"],
+	"permissions": ["storage", "webNavigation"],
 	"host_permissions": ["<all_urls>"],
 	"action": {
 		"default_popup": "popup.html",
@@ -13,7 +14,15 @@
 	},
 	"web_accessible_resources": [
 		{
-			"resources": ["icons/*"],
+			"resources": [
+				"block-memes/*",
+				"blocked.html",
+				"blocked.js",
+				"blocked-ui.js",
+				"blocked-messages.js",
+				"blocked.css",
+				"popup.css"
+			],
 			"matches": ["<all_urls>"]
 		}
 	],

@@ -1,0 +1,203 @@
+:root {
+	--primary-color: #4f46e5;
+	--secondary-color: #7c3aed;
+	--background-color: #f3f4f6;
+	--text-color: #1f2937;
+	--muted-color: #6b7280;
+}
+
+body {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 100vh;
+	margin: 0;
+	font-family: "Comic Sans MS", cursive, sans-serif;
+	background-color: var(--background-color);
+	color: var(--text-color);
+	line-height: 1.5;
+	background-image: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%239C92AC" fill-opacity="0.05"%3E%3Cpath d="M0 0h20L0 20z"/%3E%3Cpath d="M20 0v20H0z"/%3E%3C/g%3E%3C/svg%3E');
+}
+
+.container {
+	text-align: center;
+	padding: 2.5rem;
+	background: white;
+	border-radius: 24px;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+	max-width: 90%;
+	width: 600px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.5rem;
+	position: relative;
+	overflow: hidden;
+}
+
+.container::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 4px;
+	background: linear-gradient(90deg, #ff0000, #00ff00, #0000ff, #ff0000);
+	background-size: 300% 100%;
+	animation: rainbow 3s linear infinite;
+}
+
+@keyframes rainbow {
+	0% {
+		background-position: 0% 50%;
+	}
+	100% {
+		background-position: 300% 50%;
+	}
+}
+
+.meme-container {
+	width: 100%;
+	height: 300px;
+	border-radius: 16px;
+	overflow: hidden;
+	position: relative;
+	background: var(--background-color);
+	transform: rotate(-1deg);
+	transition: transform 0.3s ease;
+}
+
+.meme-container:hover {
+	transform: rotate(1deg) scale(1.02);
+}
+
+.icon {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border: 4px solid white;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+	margin: 0;
+	font-size: 2rem;
+	font-weight: 800;
+	background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96c93d);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	animation: colorshift 10s ease infinite;
+}
+
+@keyframes colorshift {
+	0%,
+	100% {
+		filter: hue-rotate(0deg);
+	}
+	50% {
+		filter: hue-rotate(180deg);
+	}
+}
+
+.message {
+	color: var(--muted-color);
+	font-size: 1.2rem;
+	margin: 0;
+	transform: rotate(-1deg);
+}
+
+.actions {
+	display: flex;
+	gap: 1rem;
+	margin-top: 1rem;
+	transform: rotate(-0.5deg);
+}
+
+.button {
+	padding: 0.75rem 1.5rem;
+	border: none;
+	border-radius: 8px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	text-decoration: none;
+	font-size: 1rem;
+	font-family: inherit;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.button:hover {
+	transform: translateY(-3px) rotate(1deg);
+	box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.button:active {
+	transform: translateY(1px);
+}
+
+.button.primary {
+	background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+	color: white;
+}
+
+.button.secondary {
+	background: linear-gradient(45deg, #4ecdc4, #45b7d1);
+	color: white;
+}
+
+.productivity-tip {
+	font-size: 0.95rem;
+	color: var(--muted-color);
+	background: #e8f5e9;
+	padding: 1rem;
+	border-radius: 8px;
+	margin-top: 1rem;
+	border: 2px solid #a5d6a7;
+	transform: rotate(0.5deg);
+}
+
+.productivity-tip::before {
+	content: "💡";
+	margin-right: 8px;
+	font-size: 1.2rem;
+}
+
+/* Animation for elements */
+.container > * {
+	animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes bounceIn {
+	0% {
+		transform: scale(0.3);
+		opacity: 0;
+	}
+	50% {
+		transform: scale(1.05);
+	}
+	70% {
+		transform: scale(0.9);
+	}
+	100% {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+/* Delay animations for each element */
+.meme-container {
+	animation-delay: 0.1s;
+}
+h2 {
+	animation-delay: 0.2s;
+}
+.message {
+	animation-delay: 0.3s;
+}
+.actions {
+	animation-delay: 0.4s;
+}
+.productivity-tip {
+	animation-delay: 0.5s;
+}

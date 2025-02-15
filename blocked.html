@@ -1,60 +1,29 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<style>
-			body {
-				display: flex;
-				justify-content: center;
-				align-items: center;
-				height: 100vh;
-				margin: 0;
-				font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
-				background-color: #f5f7fa;
-				color: #2d3748;
-			}
-			.message {
-				text-align: center;
-				padding: 2.5rem;
-				background: white;
-				border-radius: 16px;
-				box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-					0 2px 4px -1px rgba(0, 0, 0, 0.06);
-				max-width: 90%;
-				width: 500px;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-			}
-			.icon {
-				width: 80vw;
-				height: 80vh;
-				object-fit: contain;
-				margin-bottom: 2rem;
-			}
-			h2 {
-				margin: 0 0 1rem;
-				font-size: 1.75rem;
-				font-weight: 600;
-			}
-			p {
-				margin: 0;
-				color: #4a5568;
-				line-height: 1.5;
-			}
-		</style>
+		<meta charset="UTF-8" />
+		<link rel="stylesheet" href="blocked.css" />
 	</head>
 	<body>
-		<div class="message">
-			<img
-				id="randomIcon"
-				class="icon"
-				alt="URL Blocker Icon"
-				onerror="handleImageError(this)"
-			/>
-			<h2>This URL has been blocked</h2>
-			<p>This page has been blocked by the URL Blocker extension.</p>
-			<p id="debug" style="color: #666; font-size: 12px; margin-top: 10px"></p>
+		<div class="container">
+			<div class="meme-container">
+				<img id="randomIcon" class="icon" alt="Productivity Meme" />
+			</div>
+			<h2 id="blockMessage">Nope! Stay Focused! 🎯</h2>
+			<p class="message">
+				Nice try, but this page is blocked for your own good! 😤
+			</p>
+			<div class="actions">
+				<button class="button secondary">Go Back</button>
+				<button class="button primary">Manage Blocks</button>
+			</div>
+			<div class="productivity-tip" id="productivityTip">
+				💡 Pro Tip: The average person needs 23 minutes to regain focus after a
+				distraction!
+			</div>
 		</div>
 		<script src="blocked.js"></script>
+		<script src="blocked-ui.js"></script>
+		<script src="blocked-messages.js"></script>
 	</body>
 </html>
