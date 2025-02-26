@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
 		.addEventListener("keypress", function (e) {
 			if (e.key === "Enter") addUrl();
 		});
+
+	updateAllProgressBars();
 });
 
 function addUrl() {
@@ -69,6 +71,11 @@ function displayUrls(urls) {
 		unblockBtn.appendChild(buttonText);
 
 		unblockBtn.onclick = () => {
+			// Don't do anything if button is in progress (has active unblock period)
+			if (unblockBtn.classList.contains("in-progress")) {
+				return;
+			}
+
 			// Reset any other active items
 			document
 				.querySelectorAll(".urlItem")
@@ -208,22 +215,156 @@ function updateUrlItemProgress(url, duration, expiryTime) {
 			const progressBar = unblockBtn.querySelector(".progress-bar");
 			const buttonText = unblockBtn.querySelector(".button-text");
 
+			// Create or get Block Now button
+			let blockNowBtn = item.querySelector(".blockNowBtn");
+			if (!blockNowBtn) {
+				blockNowBtn = document.createElement("button");
+				blockNowBtn.className = "blockNowBtn";
+				blockNowBtn.textContent = "Block Now";
+				blockNowBtn.onclick = () => {
+					// Send message to background script to clear temporary access
+					chrome.runtime.sendMessage(
+						{ type: "clearTemporaryAccess", url: url },
+						(response) => {
+							if (response.success) {
+								// Reset the unblock button
+								resetButton(unblockBtn, buttonText, progressBar);
+								// Hide the Block Now button
+								blockNowBtn.classList.remove("visible");
+							}
+						}
+					);
+				};
+				item.querySelector(".urlControls").appendChild(blockNowBtn);
+			}
+
+			const currentTime = Date.now();
 			const remainingTime = Math.max(
 				0,
-				Math.ceil((expiryTime - Date.now()) / 1000)
+				Math.ceil((expiryTime - currentTime) / 1000)
 			);
+			const elapsedTime = duration - remainingTime;
+
 			if (remainingTime > 0) {
+				// Show Block Now button
+				blockNowBtn.classList.add("visible");
+
+				// Calculate progress percentage based on remaining time
+				const progressPercentage = (elapsedTime / duration) * 100;
+
+				console.log(`Progress update for ${url}:`, {
+					remainingTime,
+					elapsedTime,
+					duration,
+					progressPercentage,
+					currentTime: new Date(currentTime).toISOString(),
+					expiryTime: new Date(expiryTime).toISOString(),
+				});
+
 				startProgressBar(
 					unblockBtn,
 					progressBar,
 					buttonText,
 					remainingTime,
-					duration
+					duration,
+					expiryTime
 				);
+			} else {
+				resetButton(unblockBtn, buttonText, progressBar);
+				// Hide Block Now button
+				blockNowBtn.classList.remove("visible");
 			}
 		}
 	});
 }
+
+function formatTimeRemaining(seconds) {
+	if (seconds < 60) {
+		return `${seconds}s`;
+	}
+	const minutes = Math.floor(seconds / 60);
+	const remainingSeconds = seconds % 60;
+	return `${minutes}m ${remainingSeconds}s`;
+}
+
+function startProgressBar(
+	button,
+	progressBar,
+	buttonText,
+	remainingTime,
+	totalDuration,
+	expiryTime
+) {
+	const updateProgress = () => {
+		const currentTime = Date.now();
+		const remaining = Math.max(0, Math.ceil((expiryTime - currentTime) / 1000));
+		// Calculate progress based on remaining time relative to total duration
+		const progress = Math.min(
+			100,
+			((totalDuration - remaining) / totalDuration) * 100
+		);
+
+		// Update progress bar width directly
+		progressBar.style.transition = "none";
+		progressBar.style.width = `${progress}%`;
+
+		// Update time text
+		if (remaining > 0) {
+			buttonText.textContent = formatTimeRemaining(remaining);
+			button.classList.add("in-progress");
+			return true;
+		} else {
+			resetButton(button, buttonText, progressBar);
+			return false;
+		}
+	};
+
+	// Set initial state
+	button.classList.add("in-progress");
+
+	// Update immediately
+	updateProgress();
+
+	// Update progress every 100ms for smoother animation
+	const progressInterval = setInterval(() => {
+		const shouldContinue = updateProgress();
+		if (!shouldContinue) {
+			clearInterval(progressInterval);
+		}
+	}, 100);
+
+	// Store the interval ID on the button element so we can clear it if needed
+	button.dataset.progressInterval = progressInterval;
+}
+
+function resetButton(button, buttonText, progressBar) {
+	// Clear any existing interval
+	if (button.dataset.progressInterval) {
+		clearInterval(button.dataset.progressInterval);
+		delete button.dataset.progressInterval;
+	}
+
+	button.classList.remove("in-progress");
+	buttonText.textContent = "Unblock";
+	progressBar.style.transition = "width 0.3s ease-out";
+	progressBar.style.width = "0%";
+}
+
+// Add a function to periodically update all progress bars
+function updateAllProgressBars() {
+	chrome.storage.local.get(["temporaryAccess"], function (result) {
+		const temporaryAccess = result.temporaryAccess || {};
+
+		Object.entries(temporaryAccess).forEach(([url, access]) => {
+			if (access && access.expiryTime > Date.now()) {
+				updateUrlItemProgress(url, access.duration, access.expiryTime);
+			}
+		});
+	});
+}
+
+// Call updateAllProgressBars periodically
+setInterval(updateAllProgressBars, 1000);
 
 function loadBlockedUrls() {
 	chrome.storage.local.get(
@@ -248,61 +389,6 @@ function loadBlockedUrls() {
 			chrome.storage.local.set({ temporaryAccess: temporaryAccess });
 		}
 	);
-}
-
-function startProgressBar(
-	button,
-	progressBar,
-	buttonText,
-	remainingTime,
-	totalDuration
-) {
-	const startTime = Date.now();
-	button.classList.add("in-progress");
-
-	// Calculate the elapsed time and progress percentage
-	const elapsedTime = totalDuration - remainingTime;
-	const progressPercentage = (elapsedTime / totalDuration) * 100;
-
-	// Initialize progress bar at the current progress
-	progressBar.style.transition = "none";
-	progressBar.style.width = `${progressPercentage}%`;
-
-	// Force a reflow
-	progressBar.offsetHeight;
-
-	// Start the progress animation from current position
-	progressBar.style.transition = `width ${remainingTime}s linear`;
-	progressBar.style.width = "100%";
-
-	// Update the button text
-	buttonText.textContent = `${remainingTime}s`;
-
-	// Update remaining time
-	const updateInterval = setInterval(() => {
-		const elapsed = Date.now() - startTime;
-		const remaining = Math.max(0, Math.ceil(remainingTime - elapsed / 1000));
-
-		if (remaining > 0) {
-			buttonText.textContent = `${remaining}s`;
-		} else {
-			clearInterval(updateInterval);
-			resetButton(button, buttonText, progressBar);
-		}
-	}, 1000);
-
-	// Cleanup
-	setTimeout(() => {
-		resetButton(button, buttonText, progressBar);
-		clearInterval(updateInterval);
-	}, remainingTime * 1000);
-}
-
-function resetButton(button, buttonText, progressBar) {
-	button.classList.remove("in-progress");
-	buttonText.textContent = "Unblock";
-	progressBar.style.width = "0%";
-	progressBar.style.transition = "none";
 }
 
 // Add cleanup on extension reload/update
